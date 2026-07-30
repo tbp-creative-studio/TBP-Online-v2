@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile - TBP Online</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">TBP Online</div>
+      <nav><a href="dashboard.html">Back to Dashboard</a></nav>
+    </header>
+    <div class="glass-card" style="max-width: 500px; margin: 40px auto; text-align: center;">
+      <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--accent-blue); margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 30px;" id="avatar">U</div>
+      <h2 id="profName">User Name</h2>
+      <p id="profEmail" style="color: var(--text-secondary); margin-bottom: 20px;">email@domain.com</p>
+      <hr style="border: 0.5px solid var(--glass-border); margin-bottom: 20px;">
+      <p style="text-align: left; margin-bottom: 10px;">UID: <span id="profUid" style="color: var(--accent-cyan);"></span></p>
+      <p style="text-align: left; margin-bottom: 10px;">Joined: <span id="profJoined"></span></p>
+    </div>
+  </div>
+  <script type="module" src="profile.js"></script>
+</body>
+</html>
+
