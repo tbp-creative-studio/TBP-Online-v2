@@ -12,27 +12,27 @@ onAuthStateChanged(auth, async (user) => {
   if (userDoc.exists()) {
     const data = userDoc.data();
     document.getElementById("userName").innerText = data.name;
-    document.getElementById("balance").innerText = `$${data.balance.toFixed(2)}`;
-    document.getElementById("totalIncome").innerText = `$${data.totalIncome.toFixed(2)}`;
-    document.getElementById("todayIncome").innerText = `$${data.todayIncome.toFixed(2)}`;
-    document.getElementById("referral").innerText = data.referral;
-    document.getElementById("deposit").innerText = `$${data.deposit.toFixed(2)}`;
-    document.getElementById("withdraw").innerText = `$${data.withdraw.toFixed(2)}`;
-    document.getElementById("vip").innerText = data.vip;
+    document.getElementById("balance").innerText = `৳${data.balance || 0}`;
+    document.getElementById("totalIncome").innerText = `৳${data.totalIncome || 0}`;
+    document.getElementById("todayIncome").innerText = `৳${data.todayIncome || 0}`;
+    document.getElementById("referral").innerText = data.referral || 0;
+    document.getElementById("deposit").innerText = `৳${data.deposit || 0}`;
+    document.getElementById("withdraw").innerText = `৳${data.withdraw || 0}`;
+    document.getElementById("vip").innerText = data.vip || "Free";
 
-    // Daily Bonus Listener
+    // Daily Bonus Listener (১০ টাকা বোনাস)
     document.getElementById('dailyBonusBtn').addEventListener('click', async () => {
       const now = new Date().getTime();
       const lastClaim = data.lastBonusClaim ? new Date(data.lastBonusClaim).getTime() : 0;
       
       if (now - lastClaim > 86400000) { // 24 hours
         await updateDoc(doc(db, "users", user.uid), {
-          balance: increment(0.50),
-          totalIncome: increment(0.50),
-          todayIncome: increment(0.50),
+          balance: increment(10),
+          totalIncome: increment(10),
+          todayIncome: increment(10),
           lastBonusClaim: new Date().toISOString()
         });
-        showToast("Claimed $0.50 Daily Bonus!");
+        showToast("Claimed ৳10 Daily Bonus!");
         location.reload();
       } else {
         showToast("Already claimed today!", "error");
@@ -44,4 +44,3 @@ onAuthStateChanged(auth, async (user) => {
 document.getElementById('logoutBtn')?.addEventListener('click', () => {
   signOut(auth).then(() => window.location.href = "login.html");
 });
-
