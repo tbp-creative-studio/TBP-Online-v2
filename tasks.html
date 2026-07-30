@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tasks - TBP Online</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -9,12 +10,43 @@
   <div class="container">
     <header>
       <div class="logo">TBP Online</div>
-      <nav><a href="dashboard.html">Back to Dashboard</a></nav>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="tasks.html" class="active">Tasks</a>
+        <a href="deposit.html">Deposit</a>
+        <a href="withdraw.html">Withdraw</a>
+        <a href="referral.html">Referral</a>
+        <a href="profile.html">Profile</a>
+      </nav>
     </header>
-    <h2 style="margin-top: 30px;">Available Tasks</h2>
-    <div class="grid-3" id="tasksList">
-      <!-- Task items rendered dynamically -->
-    </div>
+
+    <main style="margin-top: 30px;">
+      <h2>Available YouTube Tasks</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 20px;">ভিডিও দেখে কাজের প্রমাণস্বরূপ শুরুর এবং শেষের স্ক্রিনশট আপলোড করুন।</p>
+      
+      <div id="tasksList" class="grid-3"></div>
+
+      <div id="taskModal" class="glass-card" style="display: none; margin-top: 30px; max-width: 600px;">
+        <h3 id="modalTaskTitle">Submit Task Proof</h3>
+        <p style="color: var(--accent-cyan); margin: 10px 0;">⏱️ ভিডিও কমপক্ষে <b id="modalTaskDuration">2</b> মিনিট দেখতে হবে!</p>
+        <a id="modalVideoLink" href="#" target="_blank" class="btn" style="display: inline-block; margin-bottom: 20px; background: #ff0000;">▶️ Open YouTube Video</a>
+
+        <form id="taskProofForm">
+          <div class="form-group">
+            <label>১. ভিডিও শুরুর স্ক্রিনশট লিংক (Start Screenshot Image Link)</label>
+            <input type="url" id="startScreenshot" placeholder="https://ImgBB.com image link" required>
+          </div>
+          <div class="form-group">
+            <label>২. ভিডিও শেষের স্ক্রিনশট লিংক (End Screenshot Image Link)</label>
+            <input type="url" id="endScreenshot" placeholder="https://ImgBB.com image link" required>
+          </div>
+          <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 15px;">
+            💡 টিপস: ImgBB.com বা Imgur-এ ছবি আপলোড করে লিংক এখানে পেস্ট করুন।
+          </p>
+          <button type="submit" class="btn" style="width: 100%;">Submit Work Proof</button>
+        </form>
+      </div>
+    </main>
   </div>
   <script type="module" src="tasks.js"></script>
 </body>
