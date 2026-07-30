@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Withdraw - TBP Online</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container" style="max-width: 500px; margin-top: 50px;">
+    <div class="glass-card">
+      <h2>Withdraw Balance</h2>
+      <form id="withdrawForm">
+        <div class="form-group">
+          <label>Select Method</label>
+          <select id="method">
+            <option value="bkash">bKash</option>
+            <option value="nagad">Nagad</option>
+            <option value="rocket">Rocket</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Account Number</label>
+          <input type="text" id="accountNumber" required placeholder="017XXXXXXXX">
+        </div>
+        <div class="form-group">
+          <label>Amount ($)</label>
+          <input type="number" id="amount" min="1" required placeholder="5">
+        </div>
+        <button type="submit" class="btn" style="width: 100%;">Submit Withdraw</button>
+      </form>
+    </div>
+  </div>
+  <script type="module" src="withdraw.js"></script>
+</body>
+</html>
+
