@@ -13,6 +13,11 @@ document.getElementById('depositForm').addEventListener('submit', async (e) => {
   const amount = parseFloat(document.getElementById('amount').value);
   const trxId = document.getElementById('trxId').value.trim();
 
+  if (amount < 100) {
+    showToast("Minimum Deposit is ৳100!", "error");
+    return;
+  }
+
   try {
     await addDoc(collection(db, "deposits"), {
       uid: currentUser.uid,
@@ -29,4 +34,3 @@ document.getElementById('depositForm').addEventListener('submit', async (e) => {
     showToast(err.message, "error");
   }
 });
-
