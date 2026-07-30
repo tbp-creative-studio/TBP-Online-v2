@@ -13,8 +13,13 @@ document.getElementById('withdrawForm').addEventListener('submit', async (e) => 
   const accountNumber = document.getElementById('accountNumber').value.trim();
   const method = document.getElementById('method').value;
 
+  if (amount < 200) {
+    showToast("Minimum Withdraw is ৳200!", "error");
+    return;
+  }
+
   const userSnap = await getDoc(doc(db, "users", currentUser.uid));
-  if (userSnap.data().balance < amount) {
+  if ((userSnap.data().balance || 0) < amount) {
     showToast("Insufficient Balance!", "error");
     return;
   }
@@ -34,4 +39,3 @@ document.getElementById('withdrawForm').addEventListener('submit', async (e) => 
     showToast(err.message, "error");
   }
 });
-
