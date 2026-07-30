@@ -2,17 +2,18 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebas
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-// আপনার Firebase Project এর Config Details এখানে বসবে
+// Your Firebase Config Updated Automatically!
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDwT-rRCZg7OZJ7C70cXuHrdjPKVb1JqG8",
+  authDomain: "tbp-online-v2.firebaseapp.com",
+  projectId: "tbp-online-v2",
+  storageBucket: "tbp-online-v2.firebasestorage.app",
+  messagingSenderId: "574042171434",
+  appId: "1:574042171434:web:a3354dbc2cfbf739d5bb53",
+  measurementId: "G-79Q2H9L7LG"
 };
 
-// Firebase Initialize
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
@@ -31,4 +32,3 @@ export function showToast(message, type = 'info') {
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
 }
-
