@@ -9,8 +9,8 @@ import {
   getDoc 
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-// 👑 আপনার নির্দিষ্ট অ্যাডমিন ইমেইল
-const ADMIN_EMAIL = "Teamtbpessports@gmail.com"; 
+// 👑 আপনার নতুন অ্যাডমিন ইমেইল
+const ADMIN_EMAIL = "Mrx2580a1@gmail.com"; 
 
 // ----------------------------------------------------
 // ১. লগইন হ্যান্ডলার (Login System)
@@ -29,7 +29,7 @@ if (loginForm) {
 
       showToast("Login Successful!");
 
-      // 🧠 স্মার্ট রিডাইরেক্ট: ইমেইল মিলালেই অ্যাডমিন প্যানেলে পাঠাবে
+      // 🧠 ইমেইল অ্যাডমিন হলে সরাসরি admin.html, অন্যথায় dashboard.html
       if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
         window.location.href = "admin.html";
       } else {
@@ -59,7 +59,7 @@ if (registerForm) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Firestore-এ ইউজারের ডাটা সেভ
+      // Firestore-এ ডাটা সেভ
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         name: name,
@@ -75,7 +75,6 @@ if (registerForm) {
 
       showToast("Registration Successful!");
 
-      // রেজিস্ট্রেশন করার পর অটোমেটিক রিডাইরেক্ট
       if (email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
         window.location.href = "admin.html";
       } else {
