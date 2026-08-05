@@ -1,108 +1,122 @@
 import { auth, db, showToast } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-import { collection, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+import { doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-// ইউটিউব টাস্কের তালিকা (সময়সীমা সহ)
-const youtubeTasks = [
-  { id: "task_yt_1", title: "Watch YouTube Video 1", duration: "2", reward: 5, videoUrl: "https://youtube.com" },
-  { id: "task_yt_2", title: "Watch YouTube Video 2", duration: "3", reward: 8, videoUrl: "https://youtube.com" },
-  { id: "task_yt_3", title: "Watch YouTube Video 3", duration: "5", reward: 12, videoUrl: "https://youtube.com" }
+// আপনার দেয়া আসল ১০টি টাস্কের তালিকা ও সঠিক লিংক
+const FREE_TASKS = [
+  { id: 1, title: "1️⃣ Subscribe TBP Creative Studio", link: "https://youtube.com/@tbpcreativestudio?si=jAC_80ddm38JcNmV", reward: 0.80 },
+  { id: 2, title: "2️⃣ Watch Advertisement (30 Seconds)", link: "https://www.effectivecpmnetwork.com/aq96yjcs3?key=a630e0faa0d6cdf25528d1e9db62cf41", reward: 0.80 },
+  { id: 3, title: "3️⃣ Watch Advertisement (30 Seconds)", link: "https://www.effectivecpmnetwork.com/aq96yjcs3?key=a630e0faa0d6cdf25528d1e9db62cf41", reward: 0.80 },
+  { id: 4, title: "4️⃣ Join Telegram Channel", link: "https://t.me/your_telegram_channel", reward: 0.80 }, // আপনার টেলিগ্রাম লিঙ্ক দিন
+  { id: 5, title: "5️⃣ Watch Advertisement (30 Seconds)", link: "https://www.effectivecpmnetwork.com/aq96yjcs3?key=a630e0faa0d6cdf25528d1e9db62cf41", reward: 0.80 },
+  { id: 6, title: "6️⃣ Watch YouTube Video (1 Minute)", link: "https://youtu.be/GXOqWAmFr24?si=PSEpIGjZ8jU2yv2o", reward: 0.80 },
+  { id: 7, title: "7️⃣ Watch Advertisement (30 Seconds)", link: "https://www.effectivecpmnetwork.com/aq96yjcs3?key=a630e0faa0d6cdf25528d1e9db62cf41", reward: 0.80 },
+  { id: 8, title: "8️⃣ Watch Advertisement (30 Seconds)", link: "https://www.effectivecpmnetwork.com/aq96yjcs3?key=a630e0faa0d6cdf25528d1e9db62cf41", reward: 0.80 },
+  { id: 9, title: "9️⃣ Watch Advertisement (30 Seconds)", link: "https://www.effectivecpmnetwork.com/aq96yjcs3?key=a630e0faa0d6cdf25528d1e9db62cf41", reward: 0.80 },
+  { id: 10, title: "🔟 Watch Advertisement (30 Seconds)", link: "https://www.effectivecpmnetwork.com/aq96yjcs3?key=a630e0faa0d6cdf25528d1e9db62cf41", reward: 0.80 }
 ];
 
 let currentUser = null;
-let selectedTask = null;
 
-// ইউজার লগইন চেক ও টাস্ক প্রদর্শন
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
+  if (user) {
+    currentUser = user;
+    loadTasks();
+  } else {
     window.location.href = "login.html";
-    return;
   }
+});
 
-  currentUser = user;
+async function loadTasks() {
   const container = document.getElementById('taskList') || document.getElementById('tasksList');
   if (!container) return;
 
-  container.innerHTML = "";
+  try {
+    const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+    const userData = userDoc.exists() ? userDoc.data() : {};
 
-  // টাস্ক কার্ড জেনারেট করা
-  youtubeTasks.forEach(task => {
-    const card = document.createElement('div');
-    card.className = 'glass-card';
-    card.style.cssText = "padding: 15px; margin-bottom: 15px; border-radius: 12px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.1);";
-    
-    card.innerHTML = `
-      <h3 style="color: #fff; margin-bottom: 5px;">${task.title}</h3>
-      <p style="color: #00f2fe; margin-top: 5px; font-size: 0.9rem;">⏱️ Duration: ${task.duration} Minutes</p>
-      <p style="color: #28a745; margin: 10px 0; font-weight: bold;">Reward: ৳${task.reward}</p>
-      <button class="btn" id="btn-${task.id}">Start Task</button>
-    `;
-    container.appendChild(card);
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const completedTasks = (userData.completedTaskIds && userData.lastTaskReset === today) 
+      ? userData.completedTaskIds 
+      : [];
 
-    // "Start Task" বাটনে ক্লিক করলে মোডাল পপ-আপ ওপেন হবে
-    document.getElementById(`btn-${task.id}`).addEventListener('click', () => {
-      selectedTask = task;
-      const modal = document.getElementById('taskModal');
-      
-      if (modal) {
-        modal.style.display = 'block';
-        if (document.getElementById('modalTaskTitle')) document.getElementById('modalTaskTitle').innerText = task.title;
-        if (document.getElementById('modalTaskDuration')) document.getElementById('modalTaskDuration').innerText = task.duration;
-        if (document.getElementById('modalVideoLink')) document.getElementById('modalVideoLink').href = task.videoUrl;
-        
-        window.scrollTo({ top: modal.offsetTop, behavior: 'smooth' });
+    container.innerHTML = "";
+
+    FREE_TASKS.forEach(task => {
+      const isDone = completedTasks.includes(task.id);
+
+      const card = document.createElement('div');
+      card.className = "glass-card";
+      card.style.cssText = "padding: 15px; margin-bottom: 15px; border-radius: 12px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;";
+
+      card.innerHTML = `
+        <div>
+          <h4 style="color: #fff; margin: 0 0 5px 0; font-size: 1rem;">${task.title}</h4>
+          <span style="color: #00f2fe; font-weight: bold; font-size: 0.9rem;">💰 Reward: ৳${task.reward.toFixed(2)}</span>
+        </div>
+        <div>
+          <button class="btn" id="task-btn-${task.id}" ${isDone ? "disabled style='background: #475569; cursor: not-allowed;'" : ""}>
+            ${isDone ? "Completed ✅" : "Start Task"}
+          </button>
+        </div>
+      `;
+
+      container.appendChild(card);
+
+      if (!isDone) {
+        document.getElementById(`task-btn-${task.id}`).addEventListener('click', () => {
+          runTaskProcess(task, today, completedTasks);
+        });
       }
     });
-  });
-});
 
-// প্রমাণ (Proof) জমা দেওয়ার ফর্ম হ্যান্ডলার
-const proofForm = document.getElementById('taskProofForm');
-if (proofForm) {
-  proofForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    if (!currentUser || !selectedTask) {
-      showToast("Please login to submit proof!", "error");
-      return;
-    }
-
-    const startScreenshot = document.getElementById('startScreenshot')?.value.trim() || "";
-    const endScreenshot = document.getElementById('endScreenshot')?.value.trim() || "";
-
-    if (!startScreenshot || !endScreenshot) {
-      showToast("Please provide both start and end screenshot links!", "error");
-      return;
-    }
-
-    try {
-      // ইউজার ডাটা আনা (ইউজার আইডি সঠিক রাখার জন্য)
-      const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-      const userData = userDoc.exists() ? userDoc.data() : {};
-
-      // Firestore-এর task_submissions কালেকশনে তথ্য সেভ হবে
-      await addDoc(collection(db, "task_submissions"), {
-        uid: currentUser.uid,
-        userId: userData.userId || currentUser.uid, // ৬ ডিজিটের ইউনিক ইউজার আইডি
-        userName: userData.name || "Unknown",
-        userEmail: currentUser.email,
-        taskId: selectedTask.id,
-        taskTitle: selectedTask.title,
-        reward: selectedTask.reward,
-        startScreenshot: startScreenshot,
-        endScreenshot: endScreenshot,
-        status: "pending", // অ্যাডমিন এপ্রুভালের জন্য অপেক্ষা করবে
-        submittedAt: new Date().toISOString()
-      });
-
-      showToast("Proof Submitted Successfully! Waiting for Admin Review.");
-      proofForm.reset();
-      
-      const modal = document.getElementById('taskModal');
-      if (modal) modal.style.display = 'none';
-
-    } catch (err) {
-      showToast(err.message, "error");
-    }
-  });
+  } catch (err) {
+    console.error("Error loading tasks:", err);
+  }
 }
+
+// টাস্ক কাউন্টডাউন এবং পুরষ্কার যোগ করার ফানশন
+async function runTaskProcess(task, today, completedTasks) {
+  const btn = document.getElementById(`task-btn-${task.id}`);
+  btn.disabled = true;
+
+  // অ্যাড/ইউটিউব লিংক নতুন ট্যাবে খোলা
+  window.open(task.link, "_blank");
+
+  let timer = 15; // ১৫ সেকেন্ড কাউন্টডাউন
+  btn.innerText = `Wait ${timer}s...`;
+
+  const interval = setInterval(async () => {
+    timer--;
+    btn.innerText = `Wait ${timer}s...`;
+
+    if (timer <= 0) {
+      clearInterval(interval);
+      btn.innerText = "Claiming...";
+
+      try {
+        const userRef = doc(db, "users", currentUser.uid);
+        
+        // টাস্কটি কমপ্লিট লিস্টে যোগ করা
+        const updatedCompleted = [...completedTasks, task.id];
+
+        await updateDoc(userRef, {
+          balance: increment(task.reward),
+          totalIncome: increment(task.reward),
+          todayIncome: increment(task.reward),
+          completedTaskIds: updatedCompleted,
+          lastTaskReset: today
+        });
+
+        showToast(`Success! ৳${task.reward.toFixed(2)} added to balance.`);
+        btn.innerText = "Completed ✅";
+        btn.style.background = "#475569";
+
+      } catch (err) {
+        showToast(err.message, "error");
+        btn.disabled = false;
+        btn.innerText = "Start Task";
+      }
+    }
+  }, 1000);
+                               }
