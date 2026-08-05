@@ -10,20 +10,81 @@
       background: rgba(15, 23, 42, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
-      padding: 15px 20px;
-      margin-bottom: 15px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .task-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
     }
     .task-info h4 {
       margin: 0 0 5px 0;
       color: #fff;
+      font-size: 1.1rem;
     }
-    .task-info p {
-      margin: 0;
+    .task-platform {
+      background: #00f2fe;
+      color: #000;
+      font-weight: bold;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .instructions {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 12px;
+      border-radius: 8px;
       font-size: 0.85rem;
-      color: #00f2fe;
+      color: #cbd5e1;
+      border-left: 3px solid #00f2fe;
+    }
+    .task-btn {
+      display: inline-block;
+      background: #00f2fe;
+      color: #000;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-align: center;
+      width: fit-content;
+      font-size: 0.9rem;
+    }
+    .proof-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 5px;
+    }
+    .proof-input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: #0f172a;
+      color: #fff;
+      box-sizing: border-box;
+      font-size: 0.85rem;
+    }
+    .submit-btn {
+      width: 100%;
+      background: #22c55e;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .submit-btn:hover {
+      background: #16a34a;
     }
   </style>
 </head>
@@ -47,7 +108,7 @@
 
       <h3 style="color: #fff; margin-bottom: 15px;">📋 Daily Tasks</h3>
       <div id="taskList">
-        <!-- JS দিয়ে টাস্ক লোড হবে -->
+        <p style="text-align: center; color: #cbd5e1;">টাস্ক লোড হচ্ছে...</p>
       </div>
     </main>
   </div>
