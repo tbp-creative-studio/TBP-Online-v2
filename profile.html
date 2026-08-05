@@ -1,77 +1,66 @@
-import { auth, db, showToast } from "./firebase.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - TBP Online</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container" style="padding-bottom: 50px;">
+    <!-- 🔝 Header -->
+    <header style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0;">
+      <div class="logo" style="font-size: 1.5rem; font-weight: bold; color: #00f2fe;">TBP Online</div>
+      <nav><a href="dashboard.html" style="color: #fff; text-decoration: none; font-size: 0.9rem;">Back to Dashboard</a></nav>
+    </header>
 
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    try {
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      
-      // ১. যদি ডাটাবেজে কোনো তথ্য থাকে
-      const userData = userDoc.exists() ? userDoc.data() : {};
+    <!-- 👤 Profile Card -->
+    <main style="margin-top: 30px; display: flex; justify-content: center;">
+      <div class="glass-card" style="width: 100%; max-width: 400px; padding: 25px; border-radius: 16px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(15, 23, 42, 0.85); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);">
+        
+        <!-- Profile Avatar (First Letter) -->
+        <div id="userAvatar" style="width: 80px; height: 80px; margin: 0 auto 15px; border-radius: 50%; background: linear-gradient(135deg, #00f2fe, #4facfe); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: #fff; box-shadow: 0 4px 15px rgba(0,242,254,0.4);">
+          U
+        </div>
 
-      // 👤 Avatar ( নামের ১ম অক্ষর )
-      const name = userData.name || user.displayName || "User";
-      if (document.getElementById('userAvatar')) {
-        document.getElementById('userAvatar').innerText = name.charAt(0).toUpperCase();
-      }
+        <!-- User Name & VIP Badge -->
+        <h2 id="profileName" style="margin: 0 0 5px 0; color: #fff; font-size: 1.4rem;">User Name</h2>
+        <span id="profileVip" style="display: inline-block; background: linear-gradient(90deg, #ff8a00, #e52e71); color: #fff; padding: 3px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 20px;">VIP 0 (Free)</span>
 
-      // 📛 Name
-      if (document.getElementById('profileName')) {
-        document.getElementById('profileName').innerText = name;
-      }
+        <!-- Info Box -->
+        <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; text-align: left; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(255,255,255,0.05);">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #94a3b8; font-size: 0.9rem;">🆔 UID:</span>
+            <strong id="profileUid" style="color: #00f2fe; font-family: monospace; font-size: 0.95rem;">------</strong>
+          </div>
 
-      // 💎 VIP Level
-      if (document.getElementById('profileVip')) {
-        document.getElementById('profileVip').innerText = userData.plan || "VIP 0 (Free)";
-      }
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #94a3b8; font-size: 0.9rem;">📱 Phone / Email:</span>
+            <strong id="profileContact" style="color: #fff; font-size: 0.85rem;">-</strong>
+          </div>
 
-      // 🆔 UID Fix: userData.userId না থাকলে user.uid দেখাবে (কখনোই undefined হবে না)
-      const finalUid = userData.userId || userData.uid || user.uid;
-      if (document.getElementById('profileUid')) {
-        document.getElementById('profileUid').innerText = finalUid;
-      }
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #94a3b8; font-size: 0.9rem;">💰 Balance:</span>
+            <strong id="profileBalance" style="color: #28a745; font-size: 1rem;">৳0.00</strong>
+          </div>
 
-      // 📱 Contact (Phone / Email)
-      if (document.getElementById('profileContact')) {
-        document.getElementById('profileContact').innerText = userData.phone || userData.email || user.email || "N/A";
-      }
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #94a3b8; font-size: 0.9rem;">📅 Joined:</span>
+            <strong id="profileJoined" style="color: #fff; font-size: 0.85rem;">-</strong>
+          </div>
 
-      // 💰 Balance Fix: .toFixed(2) দিয়ে 60.59999... কে 60.60 বানানো হয়েছে
-      if (document.getElementById('profileBalance')) {
-        const rawBalance = Number(userData.balance) || 0;
-        document.getElementById('profileBalance').innerText = `৳${rawBalance.toFixed(2)}`;
-      }
+        </div>
 
-      // 📅 Joined Date
-      if (document.getElementById('profileJoined')) {
-        let joinedDate = "N/A";
-        if (userData.createdAt) {
-          joinedDate = new Date(userData.createdAt).toLocaleDateString();
-        } else if (user.metadata && user.metadata.creationTime) {
-          joinedDate = new Date(user.metadata.creationTime).toLocaleDateString();
-        }
-        document.getElementById('profileJoined').innerText = joinedDate;
-      }
+        <!-- Logout Button -->
+        <button id="logoutBtn" class="btn" style="background: #dc3545; color: #fff; border: none; padding: 10px 0; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">Logout</button>
 
-    } catch (err) {
-      console.error("Error loading profile:", err);
-    }
-  } else {
-    window.location.href = "login.html";
-  }
-});
+      </div>
+    </main>
+  </div>
 
-// Logout Button Logic
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) {
-  logoutBtn.addEventListener('click', async () => {
-    try {
-      await signOut(auth);
-      if (typeof showToast === "function") showToast("Logged out successfully!");
-      window.location.href = "login.html";
-    } catch (err) {
-      console.error(err);
-    }
-  });
-}
+  <!-- ⚠️ Script অবশ্যই type="module" দিয়ে থাকতে হবে -->
+  <script type="module" src="profile.js"></script>
+</body>
+  </html>
+  
