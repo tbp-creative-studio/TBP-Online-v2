@@ -14,28 +14,30 @@ onAuthStateChanged(auth, async (user) => {
     if (userDoc.exists()) {
       const data = userDoc.data();
 
-      // ১. ড্যাশবোর্ডের ডাটাগুলো পেজে বসানো
+      // ১. নাম বসানো
       if (document.getElementById("userName")) document.getElementById("userName").innerText = data.name || "User";
-      if (document.getElementById("balance")) document.getElementById("balance").innerText = `৳${data.balance || 0}`;
-      if (document.getElementById("totalIncome")) document.getElementById("totalIncome").innerText = `৳${data.totalIncome || 0}`;
-      if (document.getElementById("todayIncome")) document.getElementById("todayIncome").innerText = `৳${data.todayIncome || 0}`;
-      if (document.getElementById("deposit")) document.getElementById("deposit").innerText = `৳${data.deposit || 0}`;
-      if (document.getElementById("withdraw")) document.getElementById("withdraw").innerText = `৳${data.withdraw || 0}`;
       
-      // ৬ ডিজিটের ইউজার আইডি ও VIP প্ল্যান প্রদর্শন
-      if (document.getElementById("userUid")) document.getElementById("userUid").innerText = data.userId || data.uid;
+      // 💰 ২. ব্যালেন্স ও ইনকাম ফিক্সড দশমিক ২ ঘর (.toFixed(2))
+      if (document.getElementById("balance")) document.getElementById("balance").innerText = `৳${(Number(data.balance) || 0).toFixed(2)}`;
+      if (document.getElementById("totalIncome")) document.getElementById("totalIncome").innerText = `৳${(Number(data.totalIncome) || 0).toFixed(2)}`;
+      if (document.getElementById("todayIncome")) document.getElementById("todayIncome").innerText = `৳${(Number(data.todayIncome) || 0).toFixed(2)}`;
+      if (document.getElementById("deposit")) document.getElementById("deposit").innerText = `৳${(Number(data.deposit) || 0).toFixed(2)}`;
+      if (document.getElementById("withdraw")) document.getElementById("withdraw").innerText = `৳${(Number(data.withdraw) || 0).toFixed(2)}`;
+      
+      // 🆔 ৩. UID undefined ফিক্স: custom userId -> data.uid -> user.uid
+      const finalUid = data.userId || data.uid || user.uid;
+      if (document.getElementById("userUid")) document.getElementById("userUid").innerText = finalUid;
       if (document.getElementById("vip")) document.getElementById("vip").innerText = data.plan || "FREE PLAN";
 
-      // রেফারাল লিঙ্ক বা রেফারাল সংখ্যা বসানো
+      // 🔗 ৪. রেফারাল লিঙ্ক ও কাউন্ট
       if (document.getElementById("referral")) document.getElementById("referral").innerText = data.referralCount || 0;
       
       const refInput = document.getElementById("referralLink");
       if (refInput) {
-        const myRefCode = data.userId || data.uid;
-        refInput.value = `${window.location.origin}/register.html?ref=${myRefCode}`;
+        refInput.value = `${window.location.origin}/register.html?ref=${finalUid}`;
       }
 
-      // 🎁 ২. প্ল্যান অনুযায়ী ডাইনামিক ডেইলি বোনাস লজিক
+      // 🎁 ৫. প্ল্যান অনুযায়ী ডাইনামিক ডেইলি বোনাস লজিক
       const bonusBtn = document.getElementById('dailyBonusBtn') || document.getElementById('claimBonusBtn');
       if (bonusBtn) {
         bonusBtn.addEventListener('click', async () => {
@@ -67,7 +69,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// 🚪 ৩. লগআউট সিস্টেম
+// 🚪 ৬. লগআউট সিস্টেম
 const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {
