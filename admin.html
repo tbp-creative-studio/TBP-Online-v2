@@ -72,6 +72,25 @@
 
   </div>
 
+  <!-- ➕ Add New Task Form -->
+<div class="glass-card" style="padding: 20px; background: rgba(15, 23, 42, 0.85); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px;">
+  <h3 style="color: #00f2fe; margin-top: 0;">➕ Add New Task</h3>
+  <form id="addTaskForm" style="display: flex; flex-direction: column; gap: 10px;">
+    <input type="text" id="taskTitle" placeholder="Task Title (e.g. Visit Shortlink)" required style="padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff;">
+    
+    <input type="url" id="taskLink" placeholder="Task Link (e.g. https://shrinkme.io/...)" required style="padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff;">
+    
+    <select id="taskType" style="padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff;">
+      <option value="auto">Auto Timer Task (Ad/Link)</option>
+      <option value="manual">Manual Proof Task (CPA Offer/App)</option>
+    </select>
+    
+    <textarea id="taskInstructions" placeholder="Task Instructions for Users..." required style="padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; height: 60px;"></textarea>
+    
+    <button type="submit" style="background: #22c55e; color: #fff; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Publish Task</button>
+  </form>
+</div>
+  
   <script type="module" src="admin.js"></script>
 </body>
 </html>
