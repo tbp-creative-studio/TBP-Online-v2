@@ -5,12 +5,20 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 import { 
   doc, 
-  setDoc, 
-  getDoc 
+  setDoc 
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-// 👑 আপনার নতুন অ্যাডমিন ইমেইল
-const ADMIN_EMAIL = "Mrx2580a1@gmail.com"; 
+// 👑 অ্যাডমিন ইমেইল
+const ADMIN_EMAIL = "mrx2580a1@gmail.com"; 
+
+// ----------------------------------------------------
+// 🔗 URL থেকে রেফারাল আইডি অটো ধরা (যেমন: register.html?ref=239551)
+// ----------------------------------------------------
+const urlParams = new URLSearchParams(window.location.search);
+const refFromUrl = urlParams.get('ref');
+if (refFromUrl && document.getElementById('regReferrer')) {
+  document.getElementById('regReferrer').value = refFromUrl;
+}
 
 // ----------------------------------------------------
 // ১. লগইন হ্যান্ডলার (Login System)
@@ -20,8 +28,13 @@ const loginForm = document.getElementById('loginForm');
 if (loginForm) {
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value.trim();
+    
+    // login.html এর ID অনুযায়ী ধরা হচ্ছে
+    const emailInput = document.getElementById('loginEmail') || document.getElementById('email');
+    const passwordInput = document.getElementById('loginPassword') || document.getElementById('password');
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -56,12 +69,16 @@ if (registerForm) {
     const referrer = document.getElementById('regReferrer')?.value.trim() || "";
 
     try {
+      // 💡 ৬ ডিজিটের ইউনিক ইউজার আইডি জেনারেট (যেমন: 239551)
+      const uniqueUserId = Math.floor(100000 + Math.random() * 900000).toString();
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
       // Firestore-এ ডাটা সেভ
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
+        userId: uniqueUserId, // ৬ ডিজিটের ইউনিক আইডি
         name: name,
         email: email,
         balance: 0,
