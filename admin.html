@@ -6,27 +6,46 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
+  <div class="container" style="padding-bottom: 50px;">
     <header>
       <div class="logo">TBP Admin Panel</div>
       <nav><a href="dashboard.html">User Portal</a></nav>
     </header>
-    <main style="margin-top: 30px;">
-      <h3>Pending Deposits</h3>
-      <div id="depositsList" style="margin-top: 15px;"></div>
-      <section class="glass-card" style="margin-top: 20px;">
-  <h3>Add New Task</h3>
-  <form id="addTaskForm" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-    <input type="text" id="taskTitle" placeholder="Task Title (e.g. Watch Youtube Video)" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
-    <input type="url" id="taskLink" placeholder="Task Work Link (https://...)" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
-    <input type="number" id="taskReward" value="4" placeholder="Reward Amount (e.g. 4)" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
-    <button type="submit" class="btn">Add Task</button>
-  </form>
-      </section>
+
+    <main style="margin-top: 30px; display: flex; flex-direction: column; gap: 25px;">
       
+      <section class="glass-card">
+        <h3>Add New Task</h3>
+        <form id="addTaskForm" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+          <input type="text" id="taskTitle" placeholder="Task Title (e.g. Watch Youtube Video)" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
+          <input type="url" id="taskLink" placeholder="Task Work Link (https://...)" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
+          <input type="number" id="taskReward" value="4" placeholder="Reward Amount (৳)" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
+          <button type="submit" class="btn">Add Task</button>
+        </form>
+      </section>
+
+      <section class="glass-card">
+        <h3>Add Balance to User Account</h3>
+        <form id="addBalanceForm" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+          <input type="text" id="targetUserId" placeholder="User UID or User Email" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
+          <input type="number" id="addAmount" placeholder="Amount to Add (৳)" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
+          <button type="submit" class="btn" style="background: var(--accent-cyan);">Add Money</button>
+        </form>
+      </section>
+
+      <section class="glass-card">
+        <h3>Pending Deposits</h3>
+        <div id="depositsList" style="margin-top: 15px;"></div>
+      </section>
+
+      <section class="glass-card">
+        <h3>Withdrawal Requests</h3>
+        <div id="withdrawalsList" style="margin-top: 15px;"></div>
+      </section>
+
     </main>
   </div>
+
   <script type="module" src="admin.js"></script>
 </body>
 </html>
-
