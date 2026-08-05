@@ -260,3 +260,37 @@ async function loadTaskProofSubmissions() {
     console.log("No task submissions yet");
   }
             }
+import { db, showToast } from "./firebase.js";
+import { collection, addDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+const addTaskForm = document.getElementById("addTaskForm");
+
+if (addTaskForm) {
+  addTaskForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const title = document.getElementById("taskTitle").value;
+    const link = document.getElementById("taskLink").value;
+    const type = document.getElementById("taskType").value;
+    const instructions = document.getElementById("taskInstructions").value;
+
+    try {
+      // 🚀 ফায়ারবেসের 'tasks' কালেকশনে নতুন টাস্ক যোগ করা
+      await addDoc(collection(db, "tasks"), {
+        title: title,
+        link: link,
+        type: type,
+        reward: 0.80, // ডিফল্ট রিওয়ার্ড
+        instructions: instructions,
+        createdAt: new Date().toISOString()
+      });
+
+      showToast("✅ নতুন টাস্ক সফলভাবে যুক্ত করা হয়েছে!");
+      addTaskForm.reset(); // ফর্ম খালি করা
+
+    } catch (error) {
+      console.error("Error adding task: ", error);
+      showToast("❌ Error: " + error.message, "error");
+    }
+  });
+}
