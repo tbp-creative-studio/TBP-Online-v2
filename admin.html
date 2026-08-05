@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
@@ -10,13 +10,8 @@
     .admin-card h3 { margin-top: 0; color: #00f2fe; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; color: #cbd5e1; margin-bottom: 5px; font-size: 0.9rem; }
-    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; }
-    .table-container { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; color: #fff; }
-    th, td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    th { background: rgba(0,0,0,0.3); color: #00f2fe; }
-    .btn-approve { background: #22c55e; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-    .btn-reject { background: #ef4444; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    .form-group input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; }
+    .glass-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px; }
   </style>
 </head>
 <body>
@@ -28,12 +23,12 @@
       <h3>4️⃣ Add Balance to User Account</h3>
       <form id="addBalanceForm">
         <div class="form-group">
-          <label>User 6-Digit ID:</label>
-          <input type="text" id="targetUserId" placeholder="Ex: 583920" required>
+          <label>User ID / Email / UID:</label>
+          <input type="text" id="targetUserId" placeholder="Ex: 583920 or user@gmail.com" required>
         </div>
         <div class="form-group">
           <label>Amount (৳):</label>
-          <input type="number" id="balanceAmount" step="0.01" placeholder="Ex: 500" required>
+          <input type="number" id="addAmount" step="0.01" placeholder="Ex: 500" required>
         </div>
         <button type="submit" class="btn" style="width: 100%; background: #00f2fe; color: #000; font-weight: bold;">Add Money</button>
       </form>
@@ -59,46 +54,19 @@
       </form>
     </div>
 
-    <!-- 1️⃣ Pending Deposits -->
+    <!-- 1️⃣ Pending Deposit Requests -->
     <div class="admin-card">
       <h3>1️⃣ Pending Deposit Requests</h3>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>User ID</th>
-              <th>Method</th>
-              <th>Number</th>
-              <th>Amount</th>
-              <th>TrxID</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="depositRequestsList">
-            <tr><td colspan="6" style="text-align: center;">Loading requests...</td></tr>
-          </tbody>
-        </table>
+      <div id="depositsList">
+        <p style="color: var(--text-secondary);">Loading deposits...</p>
       </div>
     </div>
 
-    <!-- 2️⃣ Withdrawal Requests -->
+    <!-- 2️⃣ Pending Withdrawal Requests -->
     <div class="admin-card">
       <h3>2️⃣ Pending Withdrawal Requests</h3>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>User ID</th>
-              <th>Method</th>
-              <th>Number</th>
-              <th>Amount</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="withdrawRequestsList">
-            <tr><td colspan="6" style="text-align: center;">Loading requests...</td></tr>
-          </tbody>
-        </table>
+      <div id="withdrawalsList">
+        <p style="color: var(--text-secondary);">Loading withdrawals...</p>
       </div>
     </div>
 
@@ -107,3 +75,4 @@
   <script type="module" src="admin.js"></script>
 </body>
 </html>
+
