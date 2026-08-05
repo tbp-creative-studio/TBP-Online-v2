@@ -3,6 +3,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/fi
 import { 
   collection, 
   getDocs, 
+  getDoc,
   doc, 
   updateDoc, 
   addDoc, 
@@ -53,7 +54,7 @@ if (addTaskForm) {
 }
 
 // ---------------------------------------------------------
-// ২. ইউজার আইডিতে ম্যানুয়ালি ব্যালেন্স যোগ করার ফাংশন
+// ২. ইউজার আইডি (239551) বা Email দিয়ে ম্যানুয়ালি ব্যালেন্স যোগ
 // ---------------------------------------------------------
 const addBalanceForm = document.getElementById('addBalanceForm');
 if (addBalanceForm) {
@@ -65,13 +66,19 @@ if (addBalanceForm) {
     try {
       let userRef;
       if (userInput.includes('@')) {
-        // ইমেইল দিয়ে ইউজার খ খোঁজা
+        // ইমেইল দিয়ে ইউজার খোঁজা
         const q = query(collection(db, "users"), where("email", "==", userInput));
         const snap = await getDocs(q);
         if (snap.empty) throw new Error("User with this email not found!");
         userRef = doc(db, "users", snap.docs[0].id);
+      } else if (userInput.length === 6) {
+        // ৬ সংখ্যার ইউজার আইডি (userId) দিয়ে খোঁজা
+        const q = query(collection(db, "users"), where("userId", "==", userInput));
+        const snap = await getDocs(q);
+        if (snap.empty) throw new Error("User with this ID not found!");
+        userRef = doc(db, "users", snap.docs[0].id);
       } else {
-        // UID দিয়ে ইউজার খোঁজা
+        // ফায়ারবেস UID দিয়ে খোঁজা
         userRef = doc(db, "users", userInput);
       }
 
@@ -88,7 +95,7 @@ if (addBalanceForm) {
 }
 
 // ---------------------------------------------------------
-// ৩. ডিপোজিট রিকোয়েস্ট লোড করার ফাংশন
+// ৩. ডিপোজিট রিকোয়েস্ট লোড + ২% রেফার বোনাস দেওয়ার লজিক
 // ---------------------------------------------------------
 async function loadDeposits() {
   const container = document.getElementById('depositsList');
@@ -106,20 +113,55 @@ async function loadDeposits() {
       item.className = "glass-card";
       item.style.marginBottom = "15px";
       item.innerHTML = `
-        <p><b>User:</b> ${data.email || data.userId} | <b>Method:</b> ${data.method} | <b>Amount:</b> ৳${data.amount}</p>
+        <p><b>User:</b> ${data.email || data.userId || data.uid} | <b>Method:</b> ${data.method} | <b>Amount:</b> ৳${data.amount}</p>
         <p><b>TrxID:</b> ${data.trxId}</p>
         <button class="btn" style="background: var(--accent-green); margin-top: 10px;" id="approve-dep-${d.id}">Approve Deposit</button>
       `;
       container.appendChild(item);
 
       document.getElementById(`approve-dep-${d.id}`).addEventListener('click', async () => {
-        await updateDoc(doc(db, "deposits", d.id), { status: "approved" });
-        await updateDoc(doc(db, "users", data.userId || data.uid), {
-          balance: increment(data.amount),
-          deposit: increment(data.amount)
-        });
-        showToast("Deposit Approved!");
-        loadDeposits();
+        try {
+          const targetUid = data.uid || data.userId;
+          const depAmount = Number(data.amount);
+
+          // ১. ডিপোজিট স্ট্যাটাস আপডেট
+          await updateDoc(doc(db, "deposits", d.id), { status: "approved" });
+
+          // ২. ইউজারের মেইন ব্যালেন্স ও মোট ডিপোজিট বাড়ানো
+          await updateDoc(doc(db, "users", targetUid), {
+            balance: increment(depAmount),
+            deposit: increment(depAmount)
+          });
+
+          // 💡 ৩. রেফারাল ২% কমিশন দেওয়ার লজিক
+          const userSnap = await getDoc(doc(db, "users", targetUid));
+          if (userSnap.exists()) {
+            const uData = userSnap.data();
+            const referrerCode = uData.referredBy; // রেফারারের ৬ ডিজিটের আইডি
+
+            if (referrerCode) {
+              const refQuery = query(collection(db, "users"), where("userId", "==", referrerCode));
+              const refSnap = await getDocs(refQuery);
+
+              if (!refSnap.empty) {
+                const referrerDoc = refSnap.docs[0];
+                const commission = (depAmount * 2) / 100; // ২% কমিশন
+
+                // রেফারালের মালিকের অ্যাকাউন্টে টাকা পাঠানো
+                await updateDoc(doc(db, "users", referrerDoc.id), {
+                  balance: increment(commission),
+                  totalIncome: increment(commission)
+                });
+                showToast(`Bonus ৳${commission} (2%) sent to Referrer!`);
+              }
+            }
+          }
+
+          showToast("Deposit Approved Successfully!");
+          loadDeposits();
+        } catch (err) {
+          showToast(err.message, "error");
+        }
       });
     }
   });
@@ -128,7 +170,7 @@ async function loadDeposits() {
 }
 
 // ---------------------------------------------------------
-// ৪. উইথড্র রিকোয়েস্ট লোড এবং অ্যাপ্রুভ/রিজেক্ট ফাংশন
+// ৪. উইথড্র রিকোয়েস্ট লোড এবং অ্যাপ্রুভ/রিজেক্ট (With Auto Refund)
 // ---------------------------------------------------------
 async function loadWithdrawals() {
   const container = document.getElementById('withdrawalsList');
@@ -163,7 +205,7 @@ async function loadWithdrawals() {
         loadWithdrawals();
       });
 
-      // রিজেক্ট করা (রিজেক্ট করলে কাটা ব্যালেন্স ফেরত পাবে)
+      // রিজেক্ট করা (রিজেক্ট করলে কাটা টাকা ব্যাক চলে যাবে)
       document.getElementById(`reject-wd-${d.id}`).addEventListener('click', async () => {
         await updateDoc(doc(db, "withdrawals", d.id), { status: "rejected" });
         await updateDoc(doc(db, "users", data.userId), {
@@ -180,14 +222,14 @@ async function loadWithdrawals() {
 }
 
 // ---------------------------------------------------------
-// ৫. টাস্ক স্ক্রিনশট প্রুফ দেখা
+// ৫. টাস্ক প্রুফ সাবমিশন হ্যান্ডলিং
 // ---------------------------------------------------------
 async function loadTaskProofSubmissions() {
   const snap = await getDocs(collection(db, "task_submissions"));
   snap.forEach(d => {
     const data = d.data();
     if (data.status === "pending") {
-      // হ্যান্ডলিং
+      // প্রয়োজনীয় প্রুফ সাবমিশন লজিক
     }
   });
-               }
+                                                                                                                     }
