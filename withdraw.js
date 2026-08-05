@@ -10,7 +10,35 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 let currentUser = null;
-onAuthStateChanged(auth, (user) => { currentUser = user; });
+
+// 📊 ইউজারের ডাটা এবং ব্যালেন্স স্ক্রিনে দেখানোর ফাংশন
+async function loadUserData(uid) {
+  try {
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      
+      const balEl = document.getElementById('userAvailableBalance');
+      const earnEl = document.getElementById('userTotalEarned');
+      const withEl = document.getElementById('userTotalWithdrawn');
+
+      if (balEl) balEl.innerText = Number(data.balance || 0).toFixed(2);
+      if (earnEl) earnEl.innerText = Number(data.totalIncome || data.balance || 0).toFixed(2);
+      if (withEl) withEl.innerText = Number(data.withdraw || 0).toFixed(2);
+    }
+  } catch (err) {
+    console.error("Error loading user data:", err);
+  }
+}
+
+// 🔐 অথেন্টিকেশন চেক ও ডাটা লোড
+onAuthStateChanged(auth, (user) => { 
+  currentUser = user; 
+  if (user) {
+    loadUserData(user.uid);
+  }
+});
 
 const withdrawForm = document.getElementById('withdrawForm');
 
@@ -43,7 +71,7 @@ if (withdrawForm) {
         return;
       }
 
-      // ৩. উইথড্র রিকোয়েস্ট ফায়ারবেসে জমা করা (admin.js-এর সাথে কালেকশন নাম 'withdrawals' মেলানো হয়েছে)
+      // ৩. উইথড্র রিকোয়েস্ট ফায়ারবেসে জমা করা
       await addDoc(collection(db, "withdrawals"), {
         userId: currentUser.uid,
         userEmail: currentUser.email,
@@ -61,6 +89,9 @@ if (withdrawForm) {
       });
 
       showToast("Withdraw Request Submitted!");
+
+      // স্ক্রিনের ব্যালেন্স আপডেট করা
+      loadUserData(currentUser.uid);
 
       // ড্যাশবোর্ডে রিডাইরেক্ট
       setTimeout(() => {
