@@ -1,49 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
+ <!DOCTYPE html>
+<html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Dashboard - TBP Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - TBP Online</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-card { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .admin-card h3 { margin-top: 0; color: #00f2fe; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; color: #cbd5e1; margin-bottom: 5px; font-size: 0.9rem; }
+    .form-group input, .form-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; }
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; color: #fff; }
+    th, td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    th { background: rgba(0,0,0,0.3); color: #00f2fe; }
+    .btn-approve { background: #22c55e; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    .btn-reject { background: #ef4444; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+  </style>
 </head>
 <body>
-  <div class="container" style="padding-bottom: 50px;">
-    <header>
-      <div class="logo">TBP Admin Panel</div>
-      <nav><a href="dashboard.html">User Portal</a></nav>
-    </header>
+  <div class="container" style="max-width: 900px; padding: 20px 10px;">
+    <h2 style="color: #fff; text-align: center; margin-bottom: 25px;">👑 Admin Control Panel</h2>
 
-    <main style="margin-top: 30px; display: flex; flex-direction: column; gap: 25px;">
-      
-      <section class="glass-card">
-        <h3>Add New Task</h3>
-        <form id="addTaskForm" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-          <input type="text" id="taskTitle" placeholder="Task Title (e.g. Watch Youtube Video)" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
-          <input type="url" id="taskLink" placeholder="Task Work Link (https://...)" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
-          <input type="number" id="taskReward" value="4" placeholder="Reward Amount (৳)" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
-          <button type="submit" class="btn">Add Task</button>
-        </form>
-      </section>
+    <!-- 4️⃣ Add Balance to User Account -->
+    <div class="admin-card">
+      <h3>4️⃣ Add Balance to User Account</h3>
+      <form id="addBalanceForm">
+        <div class="form-group">
+          <label>User 6-Digit ID:</label>
+          <input type="text" id="targetUserId" placeholder="Ex: 583920" required>
+        </div>
+        <div class="form-group">
+          <label>Amount (৳):</label>
+          <input type="number" id="balanceAmount" step="0.01" placeholder="Ex: 500" required>
+        </div>
+        <button type="submit" class="btn" style="width: 100%; background: #00f2fe; color: #000; font-weight: bold;">Add Money</button>
+      </form>
+    </div>
 
-      <section class="glass-card">
-        <h3>Add Balance to User Account</h3>
-        <form id="addBalanceForm" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-          <input type="text" id="targetUserId" placeholder="User UID or User Email" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
-          <input type="number" id="addAmount" placeholder="Amount to Add (৳)" required style="padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: #fff;">
-          <button type="submit" class="btn" style="background: var(--accent-cyan);">Add Money</button>
-        </form>
-      </section>
+    <!-- 3️⃣ Add New Task -->
+    <div class="admin-card">
+      <h3>3️⃣ Add New Task</h3>
+      <form id="addTaskForm">
+        <div class="form-group">
+          <label>Task Title:</label>
+          <input type="text" id="taskTitle" placeholder="Ex: Subscribe YouTube Channel" required>
+        </div>
+        <div class="form-group">
+          <label>Task Link:</label>
+          <input type="url" id="taskLink" placeholder="https://..." required>
+        </div>
+        <div class="form-group">
+          <label>Reward Amount (৳):</label>
+          <input type="number" id="taskReward" step="0.1" placeholder="Ex: 0.80" required>
+        </div>
+        <button type="submit" class="btn" style="width: 100%; background: #3b82f6;">Publish Task</button>
+      </form>
+    </div>
 
-      <section class="glass-card">
-        <h3>Pending Deposits</h3>
-        <div id="depositsList" style="margin-top: 15px;"></div>
-      </section>
+    <!-- 1️⃣ Pending Deposits -->
+    <div class="admin-card">
+      <h3>1️⃣ Pending Deposit Requests</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Method</th>
+              <th>Number</th>
+              <th>Amount</th>
+              <th>TrxID</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="depositRequestsList">
+            <tr><td colspan="6" style="text-align: center;">Loading requests...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-      <section class="glass-card">
-        <h3>Withdrawal Requests</h3>
-        <div id="withdrawalsList" style="margin-top: 15px;"></div>
-      </section>
+    <!-- 2️⃣ Withdrawal Requests -->
+    <div class="admin-card">
+      <h3>2️⃣ Pending Withdrawal Requests</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Method</th>
+              <th>Number</th>
+              <th>Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="withdrawRequestsList">
+            <tr><td colspan="6" style="text-align: center;">Loading requests...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-    </main>
   </div>
 
   <script type="module" src="admin.js"></script>
