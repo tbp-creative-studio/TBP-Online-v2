@@ -2,13 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Withdraw - TBP Online</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .balance-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .balance-card h2 { color: #00f2fe; margin: 5px 0; font-size: 2rem; }
+    .balance-card p { color: #94a3b8; margin: 0; font-size: 0.9rem; }
+    .stats-grid {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+  </style>
 </head>
 <body>
-  <div class="container" style="max-width: 500px; margin-top: 50px;">
+  <div class="container" style="max-width: 500px; margin: 40px auto; padding: 0 15px;">
+    
+    <!-- 📊 ব্যালেন্স ও আয়/উইথড্র তথ্য ড্যাশবোর্ড -->
+    <div class="balance-card">
+      <p>বর্তমান ব্যালেন্স (Available Balance)</p>
+      <h2>৳<span id="userAvailableBalance">0.00</span></h2>
+      <div class="stats-grid">
+        <div>মোট আয়: <b style="color: #22c55e;">৳<span id="userTotalEarned">0.00</span></b></div>
+        <div>মোট উইথড্র: <b style="color: #ef4444;">৳<span id="userTotalWithdrawn">0.00</span></b></div>
+      </div>
+    </div>
+
+    <!-- 💸 উইথড্র ফর্ম -->
     <div class="glass-card">
-      <h2>Withdraw Balance</h2>
+      <h2 style="margin-top: 0;">Withdraw Balance</h2>
       <form id="withdrawForm">
         <div class="form-group">
           <label>Select Method</label>
@@ -29,6 +63,7 @@
         <button type="submit" class="btn" style="width: 100%;">Submit Withdraw</button>
       </form>
     </div>
+
   </div>
   <script type="module" src="withdraw.js"></script>
 </body>
