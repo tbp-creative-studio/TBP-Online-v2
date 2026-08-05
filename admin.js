@@ -17,7 +17,8 @@ const ADMIN_EMAIL = "mrx2580a1@gmail.com";
 
 onAuthStateChanged(auth, async (user) => {
   if (!user || user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-    showToast("Access Denied! Admin Only.", "error");
+    if (typeof showToast === "function") showToast("Access Denied! Admin Only.", "error");
+    else alert("Access Denied! Admin Only.");
     window.location.href = "dashboard.html";
     return;
   }
@@ -83,7 +84,8 @@ if (addBalanceForm) {
       }
 
       await updateDoc(userRef, {
-        balance: increment(amount)
+        balance: increment(amount),
+        deposit: increment(amount)
       });
 
       showToast(`Successfully added ৳${amount} to User!`);
@@ -115,26 +117,35 @@ async function loadDeposits() {
       item.innerHTML = `
         <p><b>User:</b> ${data.email || data.userId || data.uid} | <b>Method:</b> ${data.method} | <b>Amount:</b> ৳${data.amount}</p>
         <p><b>TrxID:</b> ${data.trxId}</p>
-        <button class="btn" style="background: var(--accent-green); margin-top: 10px;" id="approve-dep-${d.id}">Approve Deposit</button>
+        <button class="btn" style="background: var(--accent-green, #28a745); color:#fff; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; margin-top: 10px;" id="approve-dep-${d.id}">Approve Deposit</button>
       `;
       container.appendChild(item);
 
       document.getElementById(`approve-dep-${d.id}`).addEventListener('click', async () => {
         try {
-          const targetUid = data.uid || data.userId;
           const depAmount = Number(data.amount);
+          
+          // সঠিক Firestore Document ID খোঁজা
+          let userDocId = data.uid;
+          if (!userDocId && data.userId) {
+            const q = query(collection(db, "users"), where("userId", "==", data.userId));
+            const uSnap = await getDocs(q);
+            if (!uSnap.empty) userDocId = uSnap.docs[0].id;
+          }
+
+          if (!userDocId) throw new Error("User record not found!");
 
           // ১. ডিপোজিট স্ট্যাটাস আপডেট
           await updateDoc(doc(db, "deposits", d.id), { status: "approved" });
 
           // ২. ইউজারের মেইন ব্যালেন্স ও মোট ডিপোজিট বাড়ানো
-          await updateDoc(doc(db, "users", targetUid), {
+          await updateDoc(doc(db, "users", userDocId), {
             balance: increment(depAmount),
             deposit: increment(depAmount)
           });
 
           // 💡 ৩. রেফারাল ২% কমিশন দেওয়ার লজিক
-          const userSnap = await getDoc(doc(db, "users", targetUid));
+          const userSnap = await getDoc(doc(db, "users", userDocId));
           if (userSnap.exists()) {
             const uData = userSnap.data();
             const referrerCode = uData.referredBy; // রেফারারের ৬ ডিজিটের আইডি
@@ -189,31 +200,43 @@ async function loadWithdrawals() {
       item.style.marginBottom = "15px";
       item.innerHTML = `
         <p><b>User Email:</b> ${data.userEmail || 'N/A'}</p>
-        <p><b>Method:</b> ${data.method} | <b>Number:</b> <span style="color: var(--accent-cyan); font-weight: bold;">${data.accountNumber}</span></p>
+        <p><b>Method:</b> ${data.method} | <b>Number:</b> <span style="color: var(--accent-cyan, #00f2fe); font-weight: bold;">${data.accountNumber}</span></p>
         <p><b>Amount:</b> ৳${data.amount}</p>
         <div style="display: flex; gap: 10px; margin-top: 10px;">
-          <button class="btn" style="background: var(--accent-green);" id="approve-wd-${d.id}">Approve Payment</button>
-          <button class="btn" style="background: #dc3545;" id="reject-wd-${d.id}">Reject & Refund</button>
+          <button class="btn" style="background: var(--accent-green, #28a745); color:#fff; border:none; padding:8px 15px; border-radius:6px; cursor:pointer;" id="approve-wd-${d.id}">Approve Payment</button>
+          <button class="btn" style="background: #dc3545; color:#fff; border:none; padding:8px 15px; border-radius:6px; cursor:pointer;" id="reject-wd-${d.id}">Reject & Refund</button>
         </div>
       `;
       container.appendChild(item);
 
       // এপ্রুভ করা
       document.getElementById(`approve-wd-${d.id}`).addEventListener('click', async () => {
-        await updateDoc(doc(db, "withdrawals", d.id), { status: "approved" });
-        showToast("Withdrawal Approved Successfully!");
-        loadWithdrawals();
+        try {
+          await updateDoc(doc(db, "withdrawals", d.id), { status: "approved" });
+          showToast("Withdrawal Approved Successfully!");
+          loadWithdrawals();
+        } catch(err) {
+          showToast(err.message, "error");
+        }
       });
 
       // রিজেক্ট করা (রিজেক্ট করলে কাটা টাকা ব্যাক চলে যাবে)
       document.getElementById(`reject-wd-${d.id}`).addEventListener('click', async () => {
-        await updateDoc(doc(db, "withdrawals", d.id), { status: "rejected" });
-        await updateDoc(doc(db, "users", data.userId), {
-          balance: increment(data.amount),
-          withdraw: increment(-data.amount)
-        });
-        showToast("Withdrawal Rejected & Amount Refunded!");
-        loadWithdrawals();
+        try {
+          await updateDoc(doc(db, "withdrawals", d.id), { status: "rejected" });
+          
+          let targetId = data.userId || data.uid;
+          if (targetId) {
+            await updateDoc(doc(db, "users", targetId), {
+              balance: increment(data.amount),
+              withdraw: increment(-data.amount)
+            });
+          }
+          showToast("Withdrawal Rejected & Amount Refunded!");
+          loadWithdrawals();
+        } catch(err) {
+          showToast(err.message, "error");
+        }
       });
     }
   });
@@ -225,11 +248,15 @@ async function loadWithdrawals() {
 // ৫. টাস্ক প্রুফ সাবমিশন হ্যান্ডলিং
 // ---------------------------------------------------------
 async function loadTaskProofSubmissions() {
-  const snap = await getDocs(collection(db, "task_submissions"));
-  snap.forEach(d => {
-    const data = d.data();
-    if (data.status === "pending") {
-      // প্রয়োজনীয় প্রুফ সাবমিশন লজিক
-    }
-  });
-                                                                                                                     }
+  try {
+    const snap = await getDocs(collection(db, "task_submissions"));
+    snap.forEach(d => {
+      const data = d.data();
+      if (data.status === "pending") {
+        // প্রয়োজনীয় প্রুফ সাবমিশন লজিক এখানে যুক্ত করা যাবে
+      }
+    });
+  } catch(e) {
+    console.log("No task submissions yet");
+  }
+            }
